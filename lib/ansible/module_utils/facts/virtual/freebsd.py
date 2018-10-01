@@ -19,9 +19,10 @@ __metaclass__ = type
 import os
 
 from ansible.module_utils.facts.virtual.base import Virtual, VirtualCollector
+from ansible.module_utils.facts.virtual.sysctl import VirtualSysctlDetectionMixin
 
 
-class FreeBSDVirtual(Virtual):
+class FreeBSDVirtual(Virtual, VirtualSysctlDetectionMixin):
     """
     This is a FreeBSD-specific subclass of Virtual.  It defines
     - virtualization_type
@@ -34,6 +35,9 @@ class FreeBSDVirtual(Virtual):
         # Set empty values as default
         virtual_facts['virtualization_type'] = ''
         virtual_facts['virtualization_role'] = ''
+
+        virtual_product_facts = self.detect_virt_product('hw.hv_vendor')
+        virtual_facts.update(virtual_product_facts)
 
         if os.path.exists('/dev/xen/xenstore'):
             virtual_facts['virtualization_type'] = 'xen'
